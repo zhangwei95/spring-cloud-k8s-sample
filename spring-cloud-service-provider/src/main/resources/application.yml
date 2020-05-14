@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: service-provider
+
+server:
+  port: 18000
+
+management:
+  server:
+    port: 18100
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+#开启 Hystrix
+feign:
+  hystrix:
+    enabled: true
