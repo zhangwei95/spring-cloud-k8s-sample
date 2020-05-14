@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ProviderFallback implements ProviderClient {
+
     @Override
     public String getService(String name) {
         return "get Service fallback";
