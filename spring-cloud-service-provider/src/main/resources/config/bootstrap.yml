@@ -10,14 +10,14 @@ spring:
 
 server:
   port: 18000
-
 management:
-  server:
-    port: 18100
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: shutdown
+  endpoint:
+    shutdown:
+      enabled: true
 
 #开启 Hystrix
 feign:
