@@ -57,13 +57,13 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             List<Undertow.ListenerInfo> listenerInfo = undertow.getListenerInfo();
             Undertow.ListenerInfo listener = listenerInfo.get(0);
             ConnectorStatistics connectorStatistics = listener.getConnectorStatistics();
-            while (connectorStatistics.getActiveConnections() > 0){
+            while (connectorStatistics.getActiveRequests() > 0){
                 Long current = System.currentTimeMillis()/unit;
                 if(counter.get(current).incrementAndGet()<limit){
-                    log.info("当前连接数："+connectorStatistics.getActiveConnections());
+                    log.info("当前请求数："+connectorStatistics.getActiveConnections());
                 }
             }
-            log.info("当前连接数："+connectorStatistics.getActiveConnections());
+            log.info("当前请求数："+connectorStatistics.getActiveRequests());
         } catch (Exception e){
             // Application Shutdown
         }
