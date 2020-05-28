@@ -23,3 +23,5 @@ management:
 feign:
   hystrix:
     enabled: true
+
+STOP_WAIT_TIMEOUT: 60

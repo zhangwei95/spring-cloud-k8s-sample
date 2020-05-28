@@ -26,7 +26,7 @@ public class TestController {
 
     @GetMapping("/sleep")
     public String sleep() throws InterruptedException {
-        log.error("sleep start");
+        log.error("sleep start 12");
         Thread.sleep(30000);
         log.error("sleep end");
         return "wakeup";
