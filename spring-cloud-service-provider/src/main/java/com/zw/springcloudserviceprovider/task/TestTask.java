@@ -1,6 +1,7 @@
 package com.zw.springcloudserviceprovider.task;
 
 
+import com.zw.springcloudserviceprovider.SpringCloudServiceProviderApplication;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,9 +15,11 @@ public class TestTask {
 
     @Scheduled(cron = "*/1 * * * * *")
     public void startJob() throws InterruptedException {
-        log.info("test Task "+System.currentTimeMillis()+" Running");
-        Thread.sleep(10000);
-        log.info("test Task "+System.currentTimeMillis()+" Finish");
+        if(SpringCloudServiceProviderApplication.needRunTask){
+            log.info("test Task "+System.currentTimeMillis()+" Running");
+            Thread.sleep(10000);
+            log.info("test Task "+System.currentTimeMillis()+" Finish");
+        }
     }
 
 }

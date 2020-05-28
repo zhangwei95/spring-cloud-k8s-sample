@@ -1,6 +1,8 @@
 package com.zw.springcloudserviceprovider.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,6 +18,9 @@ public class TestController {
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private Scheduler scheduler;
 
     @GetMapping("/getService")
     public String getService(@RequestParam String name){
@@ -39,4 +44,11 @@ public class TestController {
         ctx.close();
     }
 
+
+    @GetMapping("/stopScheduler")
+    public void stopScheduler() throws SchedulerException {
+        if(scheduler.isStarted()){
+            scheduler.shutdown();
+        }
+    }
 }

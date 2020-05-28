@@ -3,6 +3,7 @@ package com.zw.springcloudserviceprovider;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -13,6 +14,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 @Slf4j
 public class SpringCloudServiceProviderApplication {
 
+    public static volatile boolean needRunTask = true;
+
+    @Autowired
     private static Scheduler scheduler;
 
     public static void main(String[] args) {
@@ -28,7 +32,7 @@ public class SpringCloudServiceProviderApplication {
                 // 2.不能在这里再执行注册，移除关闭钩子的操作
                 // 3 不能在这里调用System.exit()
                 log.info("Application ShutDown...");
-                scheduler.shutdown();
+                needRunTask = false;
             }
         });
     }
