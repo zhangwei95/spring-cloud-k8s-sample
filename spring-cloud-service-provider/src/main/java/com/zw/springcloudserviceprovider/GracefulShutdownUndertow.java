@@ -93,11 +93,12 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
 //            }
 
             // 当前请求数大于0 自旋等待处理
-            while (connectorStatistics.getActiveRequests() > 0) {
+            while (connectorStatistics.getActiveConnections() > 0) {
                 // 每秒输出当前请求数
                 Long key = System.currentTimeMillis() / secondUnit;
                 if (counter.get(key).incrementAndGet() < 2) {
-                    logger.error("current active request：" + connectorStatistics.getActiveRequests());
+                    logger.error("current active connections：" + connectorStatistics.getActiveConnections()
+                            + "active requests：" + connectorStatistics.getActiveRequests() );
                 }
                 if (counter.size() > 30) {
                     break;
@@ -108,7 +109,7 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
 //            } else {
 //                logger.error("当前没有请求");
 //            }
-
+            logger.error("shutdown undertow.");
         } catch (Exception e) {
             // Application Shutdown
         }
