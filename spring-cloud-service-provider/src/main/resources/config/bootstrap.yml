@@ -26,8 +26,8 @@ feign:
 
 STOP_WAIT_TIMEOUT: 60
 
-#logging:
-#  config: classpath:logback-spring.xml
+logging:
+  config: classpath:logback-spring.xml
 #  level:
 #    ROOT: DEBUG
 #    io.github.jhipster: DEBUG

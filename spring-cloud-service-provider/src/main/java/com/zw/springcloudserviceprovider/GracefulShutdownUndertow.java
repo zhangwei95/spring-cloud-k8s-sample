@@ -65,7 +65,7 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             List<Undertow.ListenerInfo> listenerInfo = undertow.getListenerInfo();
             Undertow.ListenerInfo listener = listenerInfo.get(0);
             ConnectorStatistics connectorStatistics = listener.getConnectorStatistics();
-            Long current = System.currentTimeMillis() / dayUnit;
+            Long current = System.currentTimeMillis() / secondUnit;
 
             // 每隔1秒检测是否已经处理完停止服务之前接收的request
             while (connectorStatistics !=null && connectorStatistics.getActiveRequests() > 0) {
