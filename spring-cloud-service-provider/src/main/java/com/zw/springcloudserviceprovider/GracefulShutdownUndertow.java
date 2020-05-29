@@ -54,6 +54,8 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
         int limit = 60;
         // 天
         int dayUnit = 1000 * 60 * 60 * 24;
+        // 秒
+        int secondUnit = 1000 * 60 * 60 * 24;
         gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().shutdown();
         try {
             UndertowServletWebServer webServer = (UndertowServletWebServer) context.getWebServer();
@@ -66,10 +68,10 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             Long current = System.currentTimeMillis() / dayUnit;
 
             // 每隔1秒检测是否已经处理完停止服务之前接收的request
-            while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(1000)) {
+            while (connectorStatistics !=null && connectorStatistics.getActiveRequests() > 0) {
                 if (null != connectorStatistics) {
                     logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
-                            connectorStatistics.getActiveConnections());
+                            connectorStatistics.getActiveRequests());
                     // 超过最大自旋限制 强制退出
                     if (counter.get(current).incrementAndGet() > limit) {
                         logger.error("shutdown undertow beyond limit times ,shutdown now...");
@@ -95,11 +97,11 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
 //                    break;
 //                }
 //            }
-            if (connectorStatistics != null) {
-                logger.error("当前请求数：" + connectorStatistics.getActiveRequests());
-            } else {
-                logger.error("当前没有请求");
-            }
+//            if (connectorStatistics != null) {
+//                logger.error("当前请求数：" + connectorStatistics.getActiveRequests());
+//            } else {
+//                logger.error("当前没有请求");
+//            }
 
         } catch (Exception e) {
             // Application Shutdown
