@@ -92,10 +92,8 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             // 60秒无法结束 强制结束
             while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(waitTime)) {
                 //每秒输出一次
-                if (counter.get(current).incrementAndGet() < 2) {
-                    logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
+                logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
                             connectorStatistics.getActiveRequests());
-                }
             }
 
             // 当前请求数大于0 自旋等待处理
