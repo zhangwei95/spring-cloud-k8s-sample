@@ -8,6 +8,8 @@ import com.google.common.cache.LoadingCache;
 import io.undertow.Undertow;
 import io.undertow.server.ConnectorStatistics;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServer;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
@@ -29,14 +31,16 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 @Slf4j
 public class GracefulShutdownUndertow  implements ApplicationListener<ContextClosedEvent> {
+    private final static Logger logger = LoggerFactory.getLogger(GracefulShutdownUndertow.class);
+
     @Autowired
     private GracefulShutdownUndertowWrapper gracefulShutdownUndertowWrapper;
 
     @Autowired
     private ServletWebServerApplicationContext context;
 
-    LoadingCache<Long, AtomicLong> counter= CacheBuilder.newBuilder()
-            .expireAfterWrite(2, TimeUnit.SECONDS)
+    private  LoadingCache<Long, AtomicLong> counter = CacheBuilder.newBuilder()
+            .expireAfterWrite(2, TimeUnit.MINUTES)
             .build(new CacheLoader<Long, AtomicLong>() {
                 @Override
                 public AtomicLong load(Long aLong) throws Exception {
@@ -44,30 +48,64 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
                 }
             });
 
-    int limit=2;
-    int unit=1000;
     @Override
-    public void onApplicationEvent(ContextClosedEvent contextClosedEvent){
+    public void onApplicationEvent(ContextClosedEvent contextClosedEvent) {
+        // 自旋次数
+        int limit = 60;
+        // 天
+        int dayUnit = 1000 * 60 * 60 * 24;
         gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().shutdown();
         try {
-            UndertowServletWebServer webServer = (UndertowServletWebServer)context.getWebServer();
+            UndertowServletWebServer webServer = (UndertowServletWebServer) context.getWebServer();
             Field field = webServer.getClass().getDeclaredField("undertow");
             field.setAccessible(true);
             Undertow undertow = (Undertow) field.get(webServer);
             List<Undertow.ListenerInfo> listenerInfo = undertow.getListenerInfo();
             Undertow.ListenerInfo listener = listenerInfo.get(0);
             ConnectorStatistics connectorStatistics = listener.getConnectorStatistics();
-            while (connectorStatistics.getActiveRequests() > 0){
-                Long current = System.currentTimeMillis()/unit;
-                if(counter.get(current).incrementAndGet()<limit){
-                    log.info("当前请求数："+connectorStatistics.getActiveConnections());
+            Long current = System.currentTimeMillis() / dayUnit;
+
+            // 每隔1秒检测是否已经处理完停止服务之前接收的request
+            while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(1000)) {
+                if (null != connectorStatistics) {
+                    logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
+                            connectorStatistics.getActiveConnections());
+                    // 超过最大自旋限制 强制退出
+                    if (counter.get(current).incrementAndGet() > limit) {
+                        logger.error("shutdown undertow beyond limit times ,shutdown now...");
+                        break;
+                    }
+                } else {
+                    logger.error("Can shutdown undertow.");
                 }
             }
-            log.info("当前请求数："+connectorStatistics.getActiveRequests());
-        } catch (Exception e){
+            // 60秒无法结束 强制结束
+//            while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(waitTime)) {
+//                logger.error("Undertow 进程在"+ waitTime +"s 内无法结束，强制结束");
+//            }
+
+            // 当前请求数大于0 自旋等待处理
+//            while (connectorStatistics.getActiveRequests() > 0) {
+//                // 每秒输出当前请求数
+//                Long key = System.currentTimeMillis() / secondUnit;
+//                if (counter.get(key).incrementAndGet() < 2) {
+//                    logger.error("当前请求数：" + connectorStatistics.getActiveConnections());
+//                }
+//                if (counter.size() > 30) {
+//                    break;
+//                }
+//            }
+            if (connectorStatistics != null) {
+                logger.error("当前请求数：" + connectorStatistics.getActiveRequests());
+            } else {
+                logger.error("当前没有请求");
+            }
+
+        } catch (Exception e) {
             // Application Shutdown
         }
     }
+
 
 
 }

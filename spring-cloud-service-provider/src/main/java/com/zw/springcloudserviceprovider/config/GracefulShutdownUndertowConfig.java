@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 public class GracefulShutdownUndertowConfig {
     @Autowired
     private GracefulShutdownUndertowWrapper gracefulShutdownUndertowWrapper;
+
+
     @Bean
     public UndertowServletWebServerFactory servletWebServerFactory() {
         UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
