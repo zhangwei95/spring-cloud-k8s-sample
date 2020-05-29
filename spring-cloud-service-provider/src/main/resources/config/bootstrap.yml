@@ -28,10 +28,10 @@ STOP_WAIT_TIMEOUT: 60
 
 logging:
   config: classpath:logback-spring.xml
-  level:
-    ROOT: DEBUG
-    io.github.jhipster: DEBUG
-    com.ideal.app: DEBUG
+#  level:
+#    ROOT: DEBUG
+#    io.github.jhipster: DEBUG
+#    com.ideal.app: DEBUG
 #    pattern:
 #      console: '%d{yyyy-MM-dd HH:mm} - %logger{50} %msg%n'
 #      file: '%d{yyyy-MM-dd HH:mm} - %logger{50} %msg%n'
