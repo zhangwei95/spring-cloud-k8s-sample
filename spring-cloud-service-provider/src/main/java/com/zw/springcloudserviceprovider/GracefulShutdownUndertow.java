@@ -81,6 +81,7 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
                     logger.error("Can shutdown undertow.");
                 }
             }
+            logger.error("shutdown undertow.");
             // 60秒无法结束 强制结束
 //            while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(waitTime)) {
 //                logger.error("Undertow 进程在"+ waitTime +"s 内无法结束，强制结束");
