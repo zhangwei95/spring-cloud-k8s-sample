@@ -70,15 +70,15 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             // 每隔1秒检测是否已经处理完停止服务之前接收的request
             while (connectorStatistics !=null && connectorStatistics.getActiveRequests() > 0) {
                 if (null != connectorStatistics) {
-                    logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
-                            connectorStatistics.getActiveRequests());
                     current = System.currentTimeMillis() / secondUnit;
                     //每秒输出一次
                     if (counter.get(current).incrementAndGet() < 2) {
-                        logger.error("shutdown undertow beyond limit times ,shutdown now...");
+                        logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
+                                connectorStatistics.getActiveRequests());
                     }
                     // 超过最大自旋限制 强制退出
                     if (counter.size() > limit) {
+                        logger.error("shutdown undertow.");
                         break;
                     }
                 } else {
