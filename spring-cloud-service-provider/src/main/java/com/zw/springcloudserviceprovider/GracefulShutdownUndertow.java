@@ -68,41 +68,41 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
             Long current = System.currentTimeMillis() / secondUnit;
 
             // 每隔1秒检测是否已经处理完停止服务之前接收的request
-            while (connectorStatistics !=null && connectorStatistics.getActiveRequests() > 0) {
-                if (null != connectorStatistics) {
-                    current = System.currentTimeMillis() / secondUnit;
-                    //每秒输出一次
-                    if (counter.get(current).incrementAndGet() < 2) {
-                        logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
-                                connectorStatistics.getActiveRequests());
-                    }
-                    // 超过最大自旋限制 强制退出
-                    if (counter.size() > limit) {
-                        logger.error("shutdown undertow.");
-                        break;
-                    }
-                } else {
-                    logger.error("Can shutdown undertow.");
-                    break;
-                }
-            }
-            logger.error("shutdown undertow.");
+//            while (connectorStatistics !=null && connectorStatistics.getActiveRequests() > 0) {
+//                if (null != connectorStatistics) {
+//                    current = System.currentTimeMillis() / secondUnit;
+//                    //每秒输出一次
+//                    if (counter.get(current).incrementAndGet() < 2) {
+//                        logger.error("Can't shutdown undertow, requests still processing. And there are {} activeConnections...",
+//                                connectorStatistics.getActiveRequests());
+//                    }
+//                    // 超过最大自旋限制 强制退出
+//                    if (counter.size() > limit) {
+//                        logger.error("shutdown undertow.");
+//                        break;
+//                    }
+//                } else {
+//                    logger.error("Can shutdown undertow.");
+//                    break;
+//                }
+//            }
+//            logger.error("shutdown undertow.");
             // 60秒无法结束 强制结束
 //            while (!gracefulShutdownUndertowWrapper.getGracefulShutdownHandler().awaitShutdown(waitTime)) {
 //                logger.error("Undertow 进程在"+ waitTime +"s 内无法结束，强制结束");
 //            }
 
             // 当前请求数大于0 自旋等待处理
-//            while (connectorStatistics.getActiveRequests() > 0) {
-//                // 每秒输出当前请求数
-//                Long key = System.currentTimeMillis() / secondUnit;
-//                if (counter.get(key).incrementAndGet() < 2) {
-//                    logger.error("当前请求数：" + connectorStatistics.getActiveConnections());
-//                }
-//                if (counter.size() > 30) {
-//                    break;
-//                }
-//            }
+            while (connectorStatistics.getActiveRequests() > 0) {
+                // 每秒输出当前请求数
+                Long key = System.currentTimeMillis() / secondUnit;
+                if (counter.get(key).incrementAndGet() < 2) {
+                    logger.error("current active request：" + connectorStatistics.getActiveRequests());
+                }
+                if (counter.size() > 30) {
+                    break;
+                }
+            }
 //            if (connectorStatistics != null) {
 //                logger.error("当前请求数：" + connectorStatistics.getActiveRequests());
 //            } else {
