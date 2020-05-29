@@ -100,9 +100,6 @@ public class GracefulShutdownUndertow  implements ApplicationListener<ContextClo
                     logger.error("current active connections：" + connectorStatistics.getActiveConnections()
                             + "active requests：" + connectorStatistics.getActiveRequests() );
                 }
-                if (counter.size() > 30) {
-                    break;
-                }
             }
 //            if (connectorStatistics != null) {
 //                logger.error("当前请求数：" + connectorStatistics.getActiveRequests());
